@@ -1,5 +1,6 @@
 import {
   isArray,
+  isBigint,
   isBoolean,
   isDate,
   isNull,
@@ -82,6 +83,28 @@ test('Primitive tests', () => {
   expect(isPrimitive(new Object())).toBe(false);
   expect(isPrimitive(new Date())).toBe(false);
   expect(isPrimitive(() => {})).toBe(false);
+});
+
+test('isPrimitive returns true for bigint values', () => {
+  expect(isPrimitive(BigInt(0))).toBe(true);
+  expect(isPrimitive(BigInt(9007199254740991))).toBe(true);
+  expect(isPrimitive(0n)).toBe(true);
+  expect(isPrimitive(42n)).toBe(true);
+  expect(isPrimitive(BigInt(-1))).toBe(true);
+});
+
+test('isBigint correctly identifies bigint values', () => {
+  expect(isBigint(0n)).toBe(true);
+  expect(isBigint(BigInt(42))).toBe(true);
+  expect(isBigint(0)).toBe(false);
+  expect(isBigint('0')).toBe(false);
+});
+
+test('isPrimitive recognizes bigint as primitive', () => {
+  // bigint is a primitive type in JavaScript; isPrimitive should return true
+  const value: unknown = 0n;
+  const result = isPrimitive(value);
+  expect(result).toBe(true);
 });
 
 test('Date exception', () => {
