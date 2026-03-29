@@ -84,6 +84,23 @@ test('Primitive tests', () => {
   expect(isPrimitive(() => {})).toBe(false);
 });
 
+test('isPrimitive returns true for bigint values', () => {
+  expect(isPrimitive(BigInt(0))).toBe(true);
+  expect(isPrimitive(BigInt(9007199254740991))).toBe(true);
+  expect(isPrimitive(0n)).toBe(true);
+  expect(isPrimitive(9007199254740991n)).toBe(true);
+  expect(isPrimitive(BigInt(-1))).toBe(true);
+});
+
+test('isPrimitive type guard includes bigint', () => {
+  const value = 0n;
+  // isPrimitive should return true for bigint, allowing it to be recognized as primitive
+  expect(isPrimitive(value)).toBe(true);
+  if (isPrimitive(value)) {
+    expect(typeof value).toBe('bigint');
+  }
+});
+
 test('Date exception', () => {
   expect(isDate(new Date('_'))).toBe(false);
 });
