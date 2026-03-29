@@ -1384,3 +1384,120 @@ test('#310 fixes backwards compat', () => {
     },
   });
 });
+
+describe('BigInt typed arrays', () => {
+  describe('serialize then deserialize', () => {
+    it('works for BigInt64Array', () => {
+      const input = new BigInt64Array([0n, 1n, -1n, 9007199254740993n]);
+      const serialized = SuperJSON.serialize(input);
+      const deserialized = SuperJSON.deserialize<BigInt64Array>(serialized);
+      expect(deserialized).toBeInstanceOf(BigInt64Array);
+      expect(deserialized).toEqual(input);
+    });
+
+    it('works for BigUint64Array', () => {
+      const input = new BigUint64Array([0n, 1n, 18446744073709551615n]);
+      const serialized = SuperJSON.serialize(input);
+      const deserialized = SuperJSON.deserialize<BigUint64Array>(serialized);
+      expect(deserialized).toBeInstanceOf(BigUint64Array);
+      expect(deserialized).toEqual(input);
+    });
+
+    it('works for empty BigInt64Array', () => {
+      const input = new BigInt64Array([]);
+      const serialized = SuperJSON.serialize(input);
+      const deserialized = SuperJSON.deserialize<BigInt64Array>(serialized);
+      expect(deserialized).toBeInstanceOf(BigInt64Array);
+      expect(deserialized.length).toBe(0);
+    });
+
+    it('works for empty BigUint64Array', () => {
+      const input = new BigUint64Array([]);
+      const serialized = SuperJSON.serialize(input);
+      const deserialized = SuperJSON.deserialize<BigUint64Array>(serialized);
+      expect(deserialized).toBeInstanceOf(BigUint64Array);
+      expect(deserialized.length).toBe(0);
+    });
+  });
+
+  describe('stringify then parse', () => {
+    it('works for BigInt64Array', () => {
+      const input = new BigInt64Array([0n, -42n, 9007199254740993n]);
+      const stringified = SuperJSON.stringify(input);
+      const parsed = SuperJSON.parse<BigInt64Array>(stringified);
+      expect(parsed).toBeInstanceOf(BigInt64Array);
+      expect(parsed).toEqual(input);
+    });
+
+    it('works for BigUint64Array', () => {
+      const input = new BigUint64Array([0n, 42n, 18446744073709551615n]);
+      const stringified = SuperJSON.stringify(input);
+      const parsed = SuperJSON.parse<BigUint64Array>(stringified);
+      expect(parsed).toBeInstanceOf(BigUint64Array);
+      expect(parsed).toEqual(input);
+    });
+  });
+
+  describe('nested in complex structures', () => {
+    it('survives round-trip inside an object', () => {
+      const input = {
+        signed: new BigInt64Array([1n, -2n]),
+        unsigned: new BigUint64Array([3n, 4n]),
+      };
+      const output = SuperJSON.parse<typeof input>(SuperJSON.stringify(input));
+      expect(output.signed).toBeInstanceOf(BigInt64Array);
+      expect(output.unsigned).toBeInstanceOf(BigUint64Array);
+      expect(output.signed).toEqual(input.signed);
+      expect(output.unsigned).toEqual(input.unsigned);
+    });
+
+    it('survives round-trip inside an array', () => {
+      const input = [new BigInt64Array([10n]), new BigUint64Array([20n])];
+      const output = SuperJSON.parse<typeof input>(SuperJSON.stringify(input));
+      expect(output[0]).toBeInstanceOf(BigInt64Array);
+      expect(output[1]).toBeInstanceOf(BigUint64Array);
+      expect(output[0]).toEqual(input[0]);
+      expect(output[1]).toEqual(input[1]);
+    });
+
+    it('survives round-trip inside a Map', () => {
+      const input = new Map<string, BigInt64Array | BigUint64Array>([
+        ['signed', new BigInt64Array([5n])],
+        ['unsigned', new BigUint64Array([6n])],
+      ]);
+      const output = SuperJSON.parse<typeof input>(SuperJSON.stringify(input));
+      expect(output).toBeInstanceOf(Map);
+      expect(output.get('signed')).toBeInstanceOf(BigInt64Array);
+      expect(output.get('unsigned')).toBeInstanceOf(BigUint64Array);
+      expect(output.get('signed')).toEqual(input.get('signed'));
+      expect(output.get('unsigned')).toEqual(input.get('unsigned'));
+    });
+
+    it('survives round-trip inside a Set', () => {
+      const bigInt64 = new BigInt64Array([7n]);
+      const bigUint64 = new BigUint64Array([8n]);
+      const input = new Set([bigInt64, bigUint64]);
+      const output = SuperJSON.parse<typeof input>(SuperJSON.stringify(input));
+      expect(output).toBeInstanceOf(Set);
+      const values = [...output];
+      expect(values[0]).toBeInstanceOf(BigInt64Array);
+      expect(values[1]).toBeInstanceOf(BigUint64Array);
+      expect(values[0]).toEqual(bigInt64);
+      expect(values[1]).toEqual(bigUint64);
+    });
+
+    it('survives round-trip in a deeply nested structure', () => {
+      const input = {
+        level1: {
+          level2: [
+            new Map([['key', new BigInt64Array([-100n, 100n])]]),
+          ],
+        },
+      };
+      const output = SuperJSON.parse<typeof input>(SuperJSON.stringify(input));
+      const nested = output.level1.level2[0].get('key');
+      expect(nested).toBeInstanceOf(BigInt64Array);
+      expect(nested).toEqual(new BigInt64Array([-100n, 100n]));
+    });
+  });
+});
