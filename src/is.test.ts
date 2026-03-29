@@ -1,5 +1,6 @@
 import {
   isArray,
+  isBigint,
   isBoolean,
   isDate,
   isNull,
@@ -91,4 +92,58 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isTypedArray identifies BigInt typed arrays as typed arrays', () => {
+  expect(isTypedArray(new BigInt64Array())).toBe(true);
+  expect(isTypedArray(new BigUint64Array())).toBe(true);
+  expect(isTypedArray(new BigInt64Array(4))).toBe(true);
+  expect(isTypedArray(new BigUint64Array(4))).toBe(true);
+});
+
+test('isTypedArray still works for standard typed arrays', () => {
+  expect(isTypedArray(new Int8Array())).toBe(true);
+  expect(isTypedArray(new Uint8Array())).toBe(true);
+  expect(isTypedArray(new Uint8ClampedArray())).toBe(true);
+  expect(isTypedArray(new Int16Array())).toBe(true);
+  expect(isTypedArray(new Uint16Array())).toBe(true);
+  expect(isTypedArray(new Int32Array())).toBe(true);
+  expect(isTypedArray(new Uint32Array())).toBe(true);
+  expect(isTypedArray(new Float32Array())).toBe(true);
+  expect(isTypedArray(new Float64Array())).toBe(true);
+});
+
+test('isTypedArray rejects non-typed-array values', () => {
+  expect(isTypedArray([])).toBe(false);
+  expect(isTypedArray({})).toBe(false);
+  expect(isTypedArray(null)).toBe(false);
+  expect(isTypedArray(undefined)).toBe(false);
+  expect(isTypedArray(new ArrayBuffer(8))).toBe(false);
+  expect(isTypedArray(new DataView(new ArrayBuffer(8)))).toBe(false);
+  expect(isTypedArray(42)).toBe(false);
+  expect(isTypedArray('string')).toBe(false);
+});
+
+test('isBigint distinguishes bigint values from BigInt typed arrays', () => {
+  expect(isBigint(BigInt(0))).toBe(true);
+  expect(isBigint(BigInt(123))).toBe(true);
+  expect(isBigint(0n)).toBe(true);
+
+  expect(isBigint(new BigInt64Array())).toBe(false);
+  expect(isBigint(new BigUint64Array())).toBe(false);
+  expect(isBigint(0)).toBe(false);
+  expect(isBigint(null)).toBe(false);
+  expect(isBigint(undefined)).toBe(false);
+});
+
+test('BigInt typed arrays are not plain objects, arrays, or primitives', () => {
+  const b64 = new BigInt64Array(2);
+  const bu64 = new BigUint64Array(2);
+
+  expect(isPlainObject(b64)).toBe(false);
+  expect(isPlainObject(bu64)).toBe(false);
+  expect(isArray(b64)).toBe(false);
+  expect(isArray(bu64)).toBe(false);
+  expect(isPrimitive(b64)).toBe(false);
+  expect(isPrimitive(bu64)).toBe(false);
 });
