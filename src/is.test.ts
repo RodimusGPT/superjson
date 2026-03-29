@@ -13,6 +13,8 @@ import {
   isTypedArray,
   isURL,
 } from './is.js';
+import { walker } from './plainer.js';
+import SuperJSON from './index.js';
 
 import { test, expect } from 'vitest';
 
@@ -91,4 +93,26 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isPrimitive returns true for bigint values', () => {
+  expect(isPrimitive(BigInt(0))).toBe(true);
+  expect(isPrimitive(BigInt(9007199254740991))).toBe(true);
+  expect(isPrimitive(BigInt(-1))).toBe(true);
+  expect(isPrimitive(42n)).toBe(true);
+  expect(isPrimitive(0n)).toBe(true);
+});
+
+test('walker does not add bigint values to the identity map', () => {
+  const identities = new Map();
+  walker(
+    { a: 42n, b: 42n },
+    identities,
+    new SuperJSON(),
+    false
+  );
+
+  for (const [key] of identities) {
+    expect(typeof key).not.toBe('bigint');
+  }
 });
