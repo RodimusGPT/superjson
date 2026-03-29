@@ -26,3 +26,28 @@ test('throws an descriptive error when transforming', () => {
     `Trying to deserialize unknown class 'NotRegistered' - check https://github.com/blitz-js/superjson/issues/116#issuecomment-773996564`
   );
 });
+
+test('round-tripped Error preserves a non-empty stack string', () => {
+  const instance = new SuperJSON();
+  const original = new Error('something went wrong');
+  const { json, meta } = instance.serialize(original);
+  const deserialized = instance.deserialize<Error>({ json, meta });
+
+  expect(deserialized).toBeInstanceOf(Error);
+  expect(deserialized.message).toBe('something went wrong');
+  expect(typeof deserialized.stack).toBe('string');
+  expect(deserialized.stack).toBeTruthy();
+});
+
+test('round-tripped TypeError preserves a non-empty stack string', () => {
+  const instance = new SuperJSON();
+  const original = new TypeError('bad type');
+  const { json, meta } = instance.serialize(original);
+  const deserialized = instance.deserialize<TypeError>({ json, meta });
+
+  expect(deserialized).toBeInstanceOf(Error);
+  expect(deserialized.name).toBe('TypeError');
+  expect(deserialized.message).toBe('bad type');
+  expect(typeof deserialized.stack).toBe('string');
+  expect(deserialized.stack).toBeTruthy();
+});
