@@ -1,5 +1,6 @@
 import {
   isArray,
+  isBigint,
   isBoolean,
   isDate,
   isNull,
@@ -91,4 +92,30 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isBigint tests', () => {
+  expect(isBigint(42n)).toBe(true);
+  expect(isBigint(BigInt(0))).toBe(true);
+  expect(isBigint(BigInt('999'))).toBe(true);
+
+  expect(isBigint(42)).toBe(false);
+  expect(isBigint('42')).toBe(false);
+  expect(isBigint(null)).toBe(false);
+  expect(isBigint(undefined)).toBe(false);
+});
+
+test('isPrimitive should return true for bigint values', () => {
+  expect(isPrimitive(42n)).toBe(true);
+  expect(isPrimitive(BigInt(0))).toBe(true);
+  expect(isPrimitive(BigInt('999'))).toBe(true);
+});
+
+test('isPrimitive return type should include bigint in the union', () => {
+  // When isPrimitive is updated to handle bigint, its return type should
+  // narrow to include bigint in the type predicate union.
+  // For now, this test verifies the runtime behavior expectation:
+  const value = 42n;
+  const result = isPrimitive(value);
+  expect(result).toBe(true);
 });
