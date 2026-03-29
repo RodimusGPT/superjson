@@ -26,3 +26,39 @@ test('throws an descriptive error when transforming', () => {
     `Trying to deserialize unknown class 'NotRegistered' - check https://github.com/blitz-js/superjson/issues/116#issuecomment-773996564`
   );
 });
+
+test('throws a descriptive error when deserializing an unknown symbol', () => {
+  const instance = new SuperJSON();
+  expect(() =>
+    instance.deserialize({
+      json: { value: 'test' },
+      meta: {
+        values: [['symbol', 'nonExistentSymbol']],
+      },
+    })
+  ).toThrowError(/nonExistentSymbol/);
+});
+
+test('throws a descriptive error when deserializing an unknown typed array', () => {
+  const instance = new SuperJSON();
+  expect(() =>
+    instance.deserialize({
+      json: { value: [1, 2, 3] },
+      meta: {
+        values: [['typed-array', 'FakeTypedArray']],
+      },
+    })
+  ).toThrowError(/FakeTypedArray/);
+});
+
+test('throws a descriptive error when deserializing an unknown custom transformer', () => {
+  const instance = new SuperJSON();
+  expect(() =>
+    instance.deserialize({
+      json: { value: 'test' },
+      meta: {
+        values: [['custom', 'nonExistentTransformer']],
+      },
+    })
+  ).toThrowError(/nonExistentTransformer/);
+});
