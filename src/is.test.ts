@@ -92,3 +92,11 @@ test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
 });
+
+test('isTypedArray recognizes BigInt64Array', () => {
+  expect(isTypedArray(new BigInt64Array([1n]))).toBe(true);
+});
+
+test('isTypedArray recognizes BigUint64Array', () => {
+  expect(isTypedArray(new BigUint64Array([1n]))).toBe(true);
+});
