@@ -73,6 +73,8 @@ test('Primitive tests', () => {
   expect(isPrimitive(false)).toBe(true);
   expect(isPrimitive(null)).toBe(true);
   expect(isPrimitive(undefined)).toBe(true);
+  expect(isPrimitive(BigInt(42))).toBe(true);
+  expect(isPrimitive(0n)).toBe(true);
 
   expect(isPrimitive(NaN)).toBe(false);
   expect(isPrimitive([])).toBe(false);
