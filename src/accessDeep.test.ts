@@ -1,4 +1,4 @@
-import { setDeep } from './accessDeep.js';
+import { getDeep, setDeep } from './accessDeep.js';
 
 import { describe, it, expect } from 'vitest';
 
@@ -27,5 +27,22 @@ describe('setDeep', () => {
     expect(obj).toEqual({
       a: new Set([10, new Set([NaN])]),
     });
+  });
+});
+
+describe('getNthKey negative index validation', () => {
+  it('getDeep on a Set with a negative index throws', () => {
+    const obj = { a: new Set([10, 20, 30]) };
+    expect(() => getDeep(obj, ['a', -1])).toThrow('index out of bounds');
+  });
+
+  it('getDeep on a Map with a negative row index throws', () => {
+    const obj = { a: new Map([['x', 1], ['y', 2]]) };
+    expect(() => getDeep(obj, ['a', -1, 1])).toThrow('index out of bounds');
+  });
+
+  it('setDeep on a Set with a negative index throws', () => {
+    const obj = { a: new Set([10, 20, 30]) };
+    expect(() => setDeep(obj, ['a', -1], v => v)).toThrow('index out of bounds');
   });
 });
