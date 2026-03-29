@@ -1,11 +1,17 @@
 import {
   isArray,
+  isBigint,
   isBoolean,
   isDate,
+  isEmptyObject,
+  isInfinite,
+  isMap,
+  isNaNValue,
   isNull,
   isNumber,
   isPrimitive,
   isRegExp,
+  isSet,
   isString,
   isSymbol,
   isUndefined,
@@ -38,6 +44,15 @@ test('Basic true tests', () => {
   expect(isPlainObject({})).toBe(true);
   // eslint-disable-next-line no-new-object
   expect(isPlainObject(new Object())).toBe(true);
+  expect(isBigint(BigInt(0))).toBe(true);
+  expect(isBigint(BigInt('123'))).toBe(true);
+  expect(isNaNValue(NaN)).toBe(true);
+  expect(isNaNValue(Number.NaN)).toBe(true);
+  expect(isInfinite(Infinity)).toBe(true);
+  expect(isInfinite(-Infinity)).toBe(true);
+  expect(isMap(new Map())).toBe(true);
+  expect(isSet(new Set())).toBe(true);
+  expect(isEmptyObject({})).toBe(true);
 });
 
 test('Basic false tests', () => {
@@ -62,6 +77,23 @@ test('Basic false tests', () => {
   expect(isPlainObject([])).toBe(false);
   expect(isPlainObject(Object.prototype)).toBe(false);
   expect(isPlainObject(Object.create(Array.prototype))).toBe(false);
+
+  expect(isBigint(0)).toBe(false);
+  expect(isBigint('123')).toBe(false);
+  expect(isBigint(null)).toBe(false);
+  expect(isNaNValue(0)).toBe(false);
+  expect(isNaNValue('NaN')).toBe(false);
+  expect(isNaNValue(undefined)).toBe(false);
+  expect(isInfinite(0)).toBe(false);
+  expect(isInfinite(NaN)).toBe(false);
+  expect(isInfinite(Number.MAX_VALUE)).toBe(false);
+  expect(isMap({})).toBe(false);
+  expect(isMap(new Set())).toBe(false);
+  expect(isSet([])).toBe(false);
+  expect(isSet(new Map())).toBe(false);
+  expect(isEmptyObject({ a: 1 })).toBe(false);
+  expect(isEmptyObject([])).toBe(false);
+  expect(isEmptyObject(null)).toBe(false);
 });
 
 test('Primitive tests', () => {
@@ -86,6 +118,11 @@ test('Primitive tests', () => {
 
 test('Date exception', () => {
   expect(isDate(new Date('_'))).toBe(false);
+});
+
+test('isTypedArray with BigInt typed arrays', () => {
+  expect(isTypedArray(new BigInt64Array())).toBe(true);
+  expect(isTypedArray(new BigUint64Array())).toBe(true);
 });
 
 test('Regression: null-prototype object', () => {
