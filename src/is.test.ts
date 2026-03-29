@@ -1,5 +1,6 @@
 import {
   isArray,
+  isBigint,
   isBoolean,
   isDate,
   isNull,
@@ -86,6 +87,23 @@ test('Primitive tests', () => {
 
 test('Date exception', () => {
   expect(isDate(new Date('_'))).toBe(false);
+});
+
+test('isPrimitive supports bigint values', () => {
+  expect(isPrimitive(BigInt(0))).toBe(true);
+  expect(isPrimitive(BigInt(123))).toBe(true);
+  expect(isPrimitive(BigInt(-1))).toBe(true);
+  expect(isPrimitive(BigInt(42))).toBe(true);
+});
+
+test('isBigint tests', () => {
+  expect(isBigint(BigInt(0))).toBe(true);
+  expect(isBigint(BigInt(123))).toBe(true);
+  expect(isBigint(BigInt(-1))).toBe(true);
+  expect(isBigint(0)).toBe(false);
+  expect(isBigint('0')).toBe(false);
+  expect(isBigint(null)).toBe(false);
+  expect(isBigint(undefined)).toBe(false);
 });
 
 test('Regression: null-prototype object', () => {
