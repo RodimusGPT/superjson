@@ -28,4 +28,24 @@ describe('setDeep', () => {
       a: new Set([10, new Set([NaN])]),
     });
   });
+
+  it('throws an informative error when setDeep is called on a Map with a path of length 1', () => {
+    const myMap = new Map([['a', 1], ['b', 2]]);
+    expect(() => setDeep(myMap, [0], v => v)).toThrow(
+      'Map paths in setDeep require at least 2 elements'
+    );
+  });
+
+  it('throws when setDeep targets a nested Map with a single remaining path element', () => {
+    const obj = { m: new Map([['x', 10]]) };
+    expect(() => setDeep(obj, ['m', 0], v => v)).toThrow(
+      'Map paths in setDeep require at least 2 elements'
+    );
+  });
+
+  it('handles setDeep on a Set with path length 1 (regression guard)', () => {
+    const mySet = new Set(['hello', 'world']);
+    setDeep(mySet, [0], v => v.toUpperCase());
+    expect(mySet).toEqual(new Set(['HELLO', 'world']));
+  });
 });
