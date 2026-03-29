@@ -1,5 +1,6 @@
 import {
   isArray,
+  isBigint,
   isBoolean,
   isDate,
   isNull,
@@ -13,6 +14,8 @@ import {
   isTypedArray,
   isURL,
 } from './is.js';
+
+import SuperJSON from './index.js';
 
 import { test, expect } from 'vitest';
 
@@ -91,4 +94,34 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isBigint returns true for bigint values', () => {
+  expect(isBigint(BigInt(0))).toBe(true);
+  expect(isBigint(BigInt(9007199254740991))).toBe(true);
+  expect(isBigint(42n)).toBe(true);
+  expect(isBigint(-1n)).toBe(true);
+  expect(isBigint(0n)).toBe(true);
+});
+
+test('isBigint returns false for non-bigint values', () => {
+  expect(isBigint(0)).toBe(false);
+  expect(isBigint('42')).toBe(false);
+  expect(isBigint(null)).toBe(false);
+  expect(isBigint(undefined)).toBe(false);
+});
+
+test('isPrimitive returns true for bigint values', () => {
+  expect(isPrimitive(BigInt(0))).toBe(true);
+  expect(isPrimitive(BigInt(9007199254740991))).toBe(true);
+  expect(isPrimitive(42n)).toBe(true);
+  expect(isPrimitive(-1n)).toBe(true);
+  expect(isPrimitive(0n)).toBe(true);
+  expect(isPrimitive(-9007199254740991n)).toBe(true);
+});
+
+test('Bigint round-trip through serialize/deserialize', () => {
+  const obj = { count: 42n, zero: 0n, large: BigInt(9007199254740991) };
+  const result = SuperJSON.deserialize(SuperJSON.serialize(obj));
+  expect(result).toEqual(obj);
 });
