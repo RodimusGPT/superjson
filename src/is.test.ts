@@ -12,6 +12,7 @@ import {
   isPlainObject,
   isTypedArray,
   isURL,
+  TypedArrayConstructor,
 } from './is.js';
 
 import { test, expect } from 'vitest';
@@ -91,4 +92,45 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isTypedArray returns true for BigInt64Array and BigUint64Array', () => {
+  expect(isTypedArray(new BigInt64Array())).toBe(true);
+  expect(isTypedArray(new BigUint64Array())).toBe(true);
+  expect(isTypedArray(BigInt64Array.of(1n, 2n, 3n))).toBe(true);
+  expect(isTypedArray(BigUint64Array.of(1n, 2n, 3n))).toBe(true);
+});
+
+test('TypedArrayConstructor type should include BigInt64ArrayConstructor and BigUint64ArrayConstructor', () => {
+  // BigInt typed array constructors should be part of the TypedArrayConstructor union.
+  // We verify this by checking that the union covers all typed array constructor names.
+  const expectedNames = [
+    'Int8Array',
+    'Uint8Array',
+    'Uint8ClampedArray',
+    'Int16Array',
+    'Uint16Array',
+    'Int32Array',
+    'Uint32Array',
+    'Float32Array',
+    'Float64Array',
+    'BigInt64Array',
+    'BigUint64Array',
+  ];
+
+  const knownConstructors: TypedArrayConstructor[] = [
+    Int8Array,
+    Uint8Array,
+    Uint8ClampedArray,
+    Int16Array,
+    Uint16Array,
+    Int32Array,
+    Uint32Array,
+    Float32Array,
+    Float64Array,
+  ];
+
+  const knownNames = knownConstructors.map(c => c.name);
+  // This will fail until BigInt64Array and BigUint64Array are added to TypedArrayConstructor
+  expect(knownNames).toEqual(expectedNames);
 });
