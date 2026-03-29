@@ -74,6 +74,11 @@ test('Primitive tests', () => {
   expect(isPrimitive(null)).toBe(true);
   expect(isPrimitive(undefined)).toBe(true);
 
+  expect(isPrimitive(0n)).toBe(true);
+  expect(isPrimitive(BigInt(42))).toBe(true);
+  expect(isPrimitive(BigInt('999999999999999999'))).toBe(true);
+  expect(isPrimitive(-1n)).toBe(true);
+
   expect(isPrimitive(NaN)).toBe(false);
   expect(isPrimitive([])).toBe(false);
   expect(isPrimitive([])).toBe(false);
@@ -82,6 +87,9 @@ test('Primitive tests', () => {
   expect(isPrimitive(new Object())).toBe(false);
   expect(isPrimitive(new Date())).toBe(false);
   expect(isPrimitive(() => {})).toBe(false);
+  expect(isPrimitive(new Map())).toBe(false);
+  expect(isPrimitive(new Set())).toBe(false);
+  expect(isPrimitive(/regex/)).toBe(false);
 });
 
 test('Date exception', () => {
