@@ -12,6 +12,7 @@ import {
   isPlainObject,
   isTypedArray,
   isURL,
+  TypedArray,
 } from './is.js';
 
 import { test, expect } from 'vitest';
@@ -91,4 +92,18 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isTypedArray recognizes BigInt typed arrays', () => {
+  expect(isTypedArray(new BigInt64Array())).toBe(true);
+  expect(isTypedArray(new BigUint64Array())).toBe(true);
+  expect(isTypedArray(new BigInt64Array(4))).toBe(true);
+  expect(isTypedArray(new BigUint64Array(4))).toBe(true);
+});
+
+test('TypedArray type includes BigInt typed arrays', () => {
+  const bigInt64: TypedArray = new BigInt64Array();
+  const bigUint64: TypedArray = new BigUint64Array();
+  expect(bigInt64).toBeInstanceOf(BigInt64Array);
+  expect(bigUint64).toBeInstanceOf(BigUint64Array);
 });
