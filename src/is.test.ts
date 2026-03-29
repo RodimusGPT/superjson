@@ -12,6 +12,8 @@ import {
   isPlainObject,
   isTypedArray,
   isURL,
+  TypedArray,
+  TypedArrayConstructor,
 } from './is.js';
 
 import { test, expect } from 'vitest';
@@ -91,4 +93,58 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isTypedArray recognizes BigInt64Array and BigUint64Array at runtime', () => {
+  const big64 = new BigInt64Array([1n, 2n, 3n]);
+  const bigU64 = new BigUint64Array([1n, 2n, 3n]);
+
+  expect(isTypedArray(big64)).toBe(true);
+  expect(isTypedArray(bigU64)).toBe(true);
+
+  // Empty BigInt typed arrays
+  expect(isTypedArray(new BigInt64Array())).toBe(true);
+  expect(isTypedArray(new BigUint64Array())).toBe(true);
+
+  // Non-typed-array values should still return false
+  expect(isTypedArray(null)).toBe(false);
+  expect(isTypedArray(undefined)).toBe(false);
+  expect(isTypedArray([])).toBe(false);
+  expect(isTypedArray({})).toBe(false);
+  expect(isTypedArray(new DataView(new ArrayBuffer(8)))).toBe(false);
+});
+
+test('isTypedArray recognizes all standard typed arrays', () => {
+  expect(isTypedArray(new Int8Array())).toBe(true);
+  expect(isTypedArray(new Uint8Array())).toBe(true);
+  expect(isTypedArray(new Uint8ClampedArray())).toBe(true);
+  expect(isTypedArray(new Int16Array())).toBe(true);
+  expect(isTypedArray(new Uint16Array())).toBe(true);
+  expect(isTypedArray(new Int32Array())).toBe(true);
+  expect(isTypedArray(new Uint32Array())).toBe(true);
+  expect(isTypedArray(new Float32Array())).toBe(true);
+  expect(isTypedArray(new Float64Array())).toBe(true);
+  expect(isTypedArray(new BigInt64Array())).toBe(true);
+  expect(isTypedArray(new BigUint64Array())).toBe(true);
+});
+
+test('TypedArray type includes BigInt typed arrays', () => {
+  // Type-level test: BigInt64Array and BigUint64Array should satisfy TypedArray
+  const big64: TypedArray = new BigInt64Array([1n]);
+  const bigU64: TypedArray = new BigUint64Array([1n]);
+
+  // Verify they are recognized at runtime too
+  expect(isTypedArray(big64)).toBe(true);
+  expect(isTypedArray(bigU64)).toBe(true);
+});
+
+test('TypedArrayConstructor type includes BigInt typed array constructors', () => {
+  // Type-level test: BigInt64ArrayConstructor and BigUint64ArrayConstructor
+  // should be assignable to TypedArrayConstructor
+  const big64Ctor: TypedArrayConstructor = BigInt64Array;
+  const bigU64Ctor: TypedArrayConstructor = BigUint64Array;
+
+  // Use the variables to avoid unused-variable errors
+  expect(big64Ctor).toBe(BigInt64Array);
+  expect(bigU64Ctor).toBe(BigUint64Array);
 });
