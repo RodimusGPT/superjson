@@ -1,5 +1,6 @@
 import {
   isArray,
+  isBigint,
   isBoolean,
   isDate,
   isNull,
@@ -74,6 +75,12 @@ test('Primitive tests', () => {
   expect(isPrimitive(null)).toBe(true);
   expect(isPrimitive(undefined)).toBe(true);
 
+  // bigint values should be primitive
+  expect(isPrimitive(BigInt(0))).toBe(true);
+  expect(isPrimitive(BigInt(9007199254740991))).toBe(true);
+  expect(isPrimitive(42n)).toBe(true);
+  expect(isPrimitive(-1n)).toBe(true);
+
   expect(isPrimitive(NaN)).toBe(false);
   expect(isPrimitive([])).toBe(false);
   expect(isPrimitive([])).toBe(false);
@@ -82,6 +89,18 @@ test('Primitive tests', () => {
   expect(isPrimitive(new Object())).toBe(false);
   expect(isPrimitive(new Date())).toBe(false);
   expect(isPrimitive(() => {})).toBe(false);
+});
+
+test('Bigint tests', () => {
+  expect(isBigint(BigInt(0))).toBe(true);
+  expect(isBigint(42n)).toBe(true);
+  expect(isBigint(BigInt(9007199254740991))).toBe(true);
+  expect(isBigint(-1n)).toBe(true);
+
+  expect(isBigint(0)).toBe(false);
+  expect(isBigint('42')).toBe(false);
+  expect(isBigint(null)).toBe(false);
+  expect(isBigint(undefined)).toBe(false);
 });
 
 test('Date exception', () => {
