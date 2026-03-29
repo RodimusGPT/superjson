@@ -1345,6 +1345,65 @@ test('deserialize in place', () => {
   expect(deserializedCopy).toEqual(deserializedInPlace);
 });
 
+describe('parse() malformed JSON handling', () => {
+  it('throws a descriptive error for invalid JSON object syntax', () => {
+    expect(() => SuperJSON.parse('{invalid}')).toThrow(/superjson|Malformed JSON/i);
+  });
+
+  it('throws a descriptive error for non-JSON strings', () => {
+    expect(() => SuperJSON.parse('not json')).toThrow(/superjson|Malformed JSON/i);
+  });
+
+  it('throws a descriptive error for empty string input', () => {
+    expect(() => SuperJSON.parse('')).toThrow(/superjson|Malformed JSON/i);
+  });
+
+  it('throws a descriptive error for JSON with undefined value', () => {
+    expect(() => SuperJSON.parse('{"a": undefined}')).toThrow(/superjson|Malformed JSON/i);
+  });
+
+  it('preserves the original SyntaxError details in the error message', () => {
+    try {
+      SuperJSON.parse('{invalid}');
+      expect.unreachable('Should have thrown');
+    } catch (e: unknown) {
+      const error = e as Error;
+      // The wrapped error should contain the original SyntaxError message for debuggability
+      expect(error.message).toMatch(/unexpected|token|parse/i);
+    }
+  });
+
+  it('preserves original error details for non-JSON input', () => {
+    try {
+      SuperJSON.parse('not json');
+      expect.unreachable('Should have thrown');
+    } catch (e: unknown) {
+      const error = e as Error;
+      expect(error.message).toMatch(/unexpected|token|parse/i);
+    }
+  });
+
+  it('still parses valid JSON correctly through parse()', () => {
+    const input = { a: 1, b: 'hello', c: [1, 2, 3] };
+    const stringified = SuperJSON.stringify(input);
+    const parsed = SuperJSON.parse<typeof input>(stringified);
+    expect(parsed).toEqual(input);
+  });
+
+  it('still parses valid JSON with SuperJSON metadata correctly', () => {
+    const date = new Date('2024-01-01T00:00:00.000Z');
+    const stringified = SuperJSON.stringify({ date });
+    const parsed = SuperJSON.parse<{ date: Date }>(stringified);
+    expect(parsed.date).toBeInstanceOf(Date);
+    expect(parsed.date.toISOString()).toBe('2024-01-01T00:00:00.000Z');
+  });
+
+  it('works with instance method parse() for malformed JSON', () => {
+    const instance = new SuperJSON();
+    expect(() => instance.parse('{invalid}')).toThrow(/superjson|Malformed JSON/i);
+  });
+});
+
 test('#310 fixes backwards compat', () => {
   expect(
     SuperJSON.deserialize({
