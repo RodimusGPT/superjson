@@ -23,7 +23,8 @@ export type SerializableJSONValue =
   | bigint
   | Date
   | ClassInstance
-  | RegExp;
+  | RegExp
+  | URL;
 
 export type SuperJSONValue =
   | JSONValue
