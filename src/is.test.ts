@@ -11,7 +11,9 @@ import {
   isUndefined,
   isPlainObject,
   isTypedArray,
+  isBigIntTypedArray,
   isURL,
+  BigIntTypedArrayConstructor,
 } from './is.js';
 
 import { test, expect } from 'vitest';
@@ -91,4 +93,33 @@ test('Date exception', () => {
 test('Regression: null-prototype object', () => {
   expect(isPlainObject(Object.create(null))).toBe(true);
   expect(isPrimitive(Object.create(null))).toBe(false);
+});
+
+test('isBigIntTypedArray positive cases', () => {
+  expect(isBigIntTypedArray(new BigInt64Array())).toBe(true);
+  expect(isBigIntTypedArray(new BigUint64Array())).toBe(true);
+  expect(isBigIntTypedArray(new BigInt64Array(4))).toBe(true);
+  expect(isBigIntTypedArray(new BigUint64Array(4))).toBe(true);
+});
+
+test('isBigIntTypedArray negative cases', () => {
+  expect(isBigIntTypedArray(new Int32Array())).toBe(false);
+  expect(isBigIntTypedArray(new Uint8Array())).toBe(false);
+  expect(isBigIntTypedArray(new Float64Array())).toBe(false);
+  expect(isBigIntTypedArray([])).toBe(false);
+  expect(isBigIntTypedArray(null)).toBe(false);
+  expect(isBigIntTypedArray(undefined)).toBe(false);
+  expect(isBigIntTypedArray({})).toBe(false);
+  expect(isBigIntTypedArray(0)).toBe(false);
+  expect(isBigIntTypedArray('')).toBe(false);
+});
+
+test('isTypedArray returns false for BigInt typed arrays', () => {
+  expect(isTypedArray(new BigInt64Array())).toBe(false);
+  expect(isTypedArray(new BigUint64Array())).toBe(false);
+});
+
+test('BigIntTypedArrayConstructor type is exported', () => {
+  const ctors: BigIntTypedArrayConstructor[] = [BigInt64Array, BigUint64Array];
+  expect(ctors).toHaveLength(2);
 });
