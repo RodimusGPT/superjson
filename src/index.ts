@@ -2,7 +2,7 @@ import { Class, JSONValue, SuperJSONResult, SuperJSONValue } from './types.js';
 import { ClassRegistry, RegisterOptions } from './class-registry.js';
 import { Registry } from './registry.js';
 import {
-  CustomTransfomer,
+  CustomTransformer,
   CustomTransformerRegistry,
 } from './custom-transformer-registry.js';
 import {
@@ -100,7 +100,7 @@ export default class SuperJSON {
 
   readonly customTransformerRegistry = new CustomTransformerRegistry();
   registerCustom<I, O extends JSONValue>(
-    transformer: Omit<CustomTransfomer<I, O>, 'name'>,
+    transformer: Omit<CustomTransformer<I, O>, 'name'>,
     name: string
   ) {
     this.customTransformerRegistry.register({
