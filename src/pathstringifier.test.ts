@@ -9,6 +9,9 @@ describe('parsePath', () => {
     ['test\\\\.a.b', ['test\\.a', 'b']],
     ['test\\a.b', ['test\\a', 'b']],
     ['test\\\\a.b', ['test\\\\a', 'b']],
+    ['foo\\', ['foo\\']],
+    ['a..b', ['a', '', 'b']],
+    ['\\.', ['.']],
   ])('legacy parsePath(%p) === %p', (input, expectedOutput) => {
     expect(parsePath(input, true)).toEqual(expectedOutput);
   });
@@ -18,6 +21,10 @@ describe('parsePath', () => {
     ['test\\.a.b', ['test.a', 'b']],
     ['test\\\\.a.b', ['test\\', 'a', 'b']],
     ['test\\\\a.b', ['test\\a', 'b']],
+    ['a\\.\\..b', ['a..', 'b']],
+    ['a\\\\\\.b', ['a\\.b']],
+    ['a..b', ['a', '', 'b']],
+    ['\\.', ['.']],
   ])('parsePath(%p) === %p', (input, expectedOutput) => {
     expect(parsePath(input, false)).toEqual(expectedOutput);
   });
