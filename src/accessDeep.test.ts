@@ -1,4 +1,4 @@
-import { setDeep } from './accessDeep.js';
+import { setDeep, getDeep } from './accessDeep.js';
 
 import { describe, it, expect } from 'vitest';
 
@@ -27,5 +27,31 @@ describe('setDeep', () => {
     expect(obj).toEqual({
       a: new Set([10, new Set([NaN])]),
     });
+  });
+});
+
+describe('getNthKey boundary checks', () => {
+  it('should throw when accessing a Set element at index === set.size', () => {
+    const set = new Set([1, 2, 3]);
+    expect(() => getDeep(set, ['3'])).toThrow('index out of bounds');
+  });
+
+  it('should throw when accessing a Map key at row === map.size', () => {
+    const map = new Map([
+      ['a', 1],
+      ['b', 2],
+    ]);
+    expect(() => getDeep(map, ['2', '0'])).toThrow('index out of bounds');
+  });
+
+  it('should return the correct value when accessing at the last valid index', () => {
+    const set = new Set([1, 2, 3]);
+    expect(getDeep(set, ['2'])).toBe(3);
+
+    const map = new Map([
+      ['a', 1],
+      ['b', 2],
+    ]);
+    expect(getDeep(map, ['1', '0'])).toBe('b');
   });
 });
