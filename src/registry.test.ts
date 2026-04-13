@@ -6,7 +6,9 @@ import { test, expect } from 'vitest';
 test('class registry', () => {
   const registry = new Registry<Class>(c => c.name);
 
+  /** A simple vehicle class used to test registry registration and lookup. */
   class Car {
+    /** Outputs a horn sound to the console. */
     honk() {
       console.log('honk');
     }
